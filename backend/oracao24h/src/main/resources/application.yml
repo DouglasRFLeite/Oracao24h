@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: oracao24h
+
+  cloud:
+    function:
+      definition: createPeriod;createTime;fetchPeriod
+      # routing-expression pode ser ajustado se quiser usar rotas automáticas
+
+# Se precisar de propriedades para DynamoDB, profiles etc, adicione aqui
+# Exemplo:
+# aws:
+#   region: sa-east-1
+
+server:
+  port: 8080  # só usado em teste local; Lambda ignora
