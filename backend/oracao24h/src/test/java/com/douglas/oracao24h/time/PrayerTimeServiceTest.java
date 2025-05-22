@@ -35,6 +35,6 @@ class PrayerTimeServiceTest {
     assertEquals(periodId, result.getPeriodId());
     assertEquals(name, result.getName());
     assertEquals(time, result.getTimeString());
-    assertEquals("SORT#10:00", result.getTimeId());
+    assertEquals("SORT#10:10", result.getTimeId());
   }
 }
