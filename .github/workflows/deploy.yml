@@ -20,7 +20,7 @@ jobs:
 
       - name: Build with Maven
         working-directory: backend/oracao24h
-        run: mvn clean package -DskipTests # why?
+        run: mvn clean package
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
