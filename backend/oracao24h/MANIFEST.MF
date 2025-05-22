@@ -1,1 +1,0 @@
-Main-Class: org.springframework.cloud.function.adapter.aws.FunctionInvoker
