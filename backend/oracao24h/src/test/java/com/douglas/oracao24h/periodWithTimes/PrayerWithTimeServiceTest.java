@@ -47,7 +47,7 @@ class PeriodWithTimeServiceTest {
     PeriodWithTime result = service.findPeriodWithTimeById(periodId);
 
     // Assert
-    assertEquals("Igrej", result.getPrayerPeriod().getChurch());
+    assertEquals("Igreja", result.getPrayerPeriod().getChurch());
     assertEquals(1, result.getPrayerTimeList().size());
     assertEquals("Maria", result.getPrayerTimeList().get(0).getName());
   }
