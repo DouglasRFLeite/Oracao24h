@@ -3,9 +3,12 @@ name: Deploy Java Lambda
 on:
   push:
     branches: main
+  pull_request:
+    branches: main
 
 jobs:
   deploy:
+    name: build-and-deploy
     runs-on: ubuntu-latest
 
     steps:
