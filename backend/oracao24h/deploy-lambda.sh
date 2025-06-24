@@ -8,6 +8,7 @@ HANDLER="org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleR
 RUNTIME="java17"
 REGION="sa-east-1"
 TABLE_NAME="Oracao24h"
+REACT_APP_ORIGIN="*" # Substitua pelo domínio da sua aplicação React em produção, se necessário
 
 # 1. Cria a role de execução com trust policy para Lambda
 aws iam create-role --role-name $ROLE_NAME --assume-role-policy-document file://<(cat <<EOF
@@ -64,19 +65,24 @@ aws lambda create-function \
   --memory-size 512 \
   --region $REGION
 
-# 4. Cria a Function URL sem autenticação
+# 4. Cria a Function URL com configuração CORS
 aws lambda create-function-url-config \
   --function-name $FUNCTION_NAME \
   --auth-type NONE \
-  --cors AllowOrigins='*' \
+  --cors "AllowOrigins=$REACT_APP_ORIGIN,AllowMethods=GET,POST,OPTIONS,AllowHeaders=Content-Type,Authorization" \
   --region $REGION
 
-# 5. Exibe a URL
+# 5. Verifica se a Function URL foi criada com sucesso e exibe a URL
 URL=$(aws lambda get-function-url-config \
   --function-name $FUNCTION_NAME \
   --region $REGION \
   --query FunctionUrl \
-  --output text)
+  --output text 2>/dev/null)
+
+if [ -z "$URL" ]; then
+  echo "❌ Erro: Falha ao criar ou obter a Function URL."
+  exit 1
+fi
 
 echo ""
 echo "🚀 Lambda criada com sucesso!"
