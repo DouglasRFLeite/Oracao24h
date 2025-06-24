@@ -1,22 +1,16 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { fetchPeriod } from './services/oracao24hapi';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import PrayerPeriod from './pages/PrayerPeriod';
 
 function App() {
-
-  const [periodWithTimes, setPeriodWithTimes] = useState();
-
-  useEffect(() => {
-    fetchPeriod("PERIOD#1747775100195").then(res => console.log(res));
-  }, []);
-
   return (
-    <>
-
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/period/:periodId" element={<PrayerPeriod />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
