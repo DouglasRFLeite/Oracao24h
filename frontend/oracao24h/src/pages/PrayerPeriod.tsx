@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { fetchPeriod, createPrayerTime } from '../services/oracao24hapi';
+import { fetchPeriod, createPrayerTime, type PeriodWithTime } from '../services/oracao24hapi';
 
 function PrayerSlot({
     start,
@@ -27,28 +27,34 @@ function PrayerSlot({
     };
 
     return (
-        <div style={{ marginBottom: 8 }}>
-            <strong>{start}-{end}</strong>
+        <div className="flex items-center gap-2 p-3 rounded-lg shadow-2xl bg-red-50 border border-gray-200 mb-2">
+            <span className="font-semibold text-[#7f1d1d]  flex-shrink-0">
+                {start} - {end}
+            </span>
             {name ? (
-                <> - <b>{name}</b></>
+                <span className="ml-2 text-red-50 font-bold bg-[#7f1d1d] rounded-xl p-1 px-3 sm:px-5">{name}</span>
             ) : (
-                <>
+                <div className="flex gap-2 items-center flex-1 min-w-0">
                     <input
                         type="text"
                         placeholder="Seu nome"
                         value={inputName}
                         onChange={e => setInputName(e.target.value)}
                         disabled={disabled || loading}
-                        style={{ marginLeft: 8 }}
+                        className="flex-1 min-w-0 px-3 py-1 rounded border text-[#7f1d1d] border-gray-100 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#7f1d1d] transition"
                     />
                     <button
                         onClick={handleSchedule}
                         disabled={disabled || loading || !inputName.trim()}
-                        style={{ marginLeft: 4 }}
+                        className={`px-4 py-1 rounded font-semibold transition 
+                            ${disabled || loading || !inputName.trim()
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-[#7f1d1d] hover:bg-[#7f1d1d]/80 text-red-50 hover:cursor-pointer'}
+                        `}
                     >
                         {loading ? 'Agendando...' : 'Agendar'}
                     </button>
-                </>
+                </div>
             )}
         </div>
     );
@@ -79,7 +85,7 @@ function generateTimeSlots() {
 
 export default function PrayerPeriod() {
     const { periodId } = useParams();
-    const [periodWithTimes, setPeriodWithTimes] = useState<any>(null);
+    const [periodWithTimes, setPeriodWithTimes] = useState<PeriodWithTime | null>(null);
     const [blocking, setBlocking] = useState<{ [key: string]: boolean }>({});
     const [loading, setLoading] = useState(true);
 
@@ -88,7 +94,6 @@ export default function PrayerPeriod() {
             setLoading(true);
             fetchPeriod(periodId).then(res => {
                 setPeriodWithTimes(res);
-                // Block already filled slots using only the start time
                 const initialBlocking: { [key: string]: boolean } = {};
                 const timeList = res.times;
                 for (const t of timeList) {
@@ -100,9 +105,8 @@ export default function PrayerPeriod() {
         }
     }, [periodId]);
 
-    // Build a lookup for quick access to names by start time
     const timeNameMap: Record<string, string> = {};
-    const timeList = periodWithTimes?.times || periodWithTimes?.prayerTimeList || [];
+    const timeList = periodWithTimes?.times || [];
     for (const t of timeList) {
         timeNameMap[t.timeString] = t.name;
     }
@@ -110,7 +114,12 @@ export default function PrayerPeriod() {
     const slots = generateTimeSlots();
 
     if (loading) {
-        return <div>Carregando horários...</div>;
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7f1d1d]"></div>
+                <span className="ml-4 text-lg text-[#7f1d1d]">Carregando horários...</span>
+            </div>
+        );
     }
 
     const handleSchedule = async (time: string, name: string) => {
@@ -118,7 +127,6 @@ export default function PrayerPeriod() {
         setBlocking(b => ({ ...b, [time]: true }));
         try {
             await createPrayerTime({ periodId, time, name });
-            // Update UI immediately
             setPeriodWithTimes((prev: any) => ({
                 ...prev,
                 prayerTimeList: [
@@ -133,22 +141,40 @@ export default function PrayerPeriod() {
     };
 
     return (
-        <div>
-            <h2>Prayer Period: {periodId}</h2>
-            {slots.map(({ start, end }) => (
-                <PrayerSlot
-                    key={start}
-                    start={start}
-                    end={end}
-                    name={timeNameMap[start]}
-                    disabled={!!blocking[start]}
-                    onSchedule={
-                        timeNameMap[start]
-                            ? undefined
-                            : (name: string) => handleSchedule(start, name)
-                    }
-                />
-            ))}
+        <div className="max-w-2xl mx-auto p-6">
+            <img src='/logo.png' alt='Logo da Igreja Cristã Maranata' className='w-50 m-auto' />
+            <h2 className="text-3xl font-bold mb-6 text-center text-[#7f1d1d]">
+                Período de Oração
+            </h2>
+            <div className="flex-col mb-8 text-center text-[#7f1d1d] text-lg font-bold">
+                <p>Igreja: {periodWithTimes?.period.church}</p>
+                <p>Motivo: {periodWithTimes?.period.reason}</p>
+                <p>
+                    Início: {periodWithTimes?.period.startDate
+                        ? new Date(periodWithTimes.period.startDate).toLocaleDateString('pt-BR')
+                        : ''} - Fim: {periodWithTimes?.period.endDate
+                            ? new Date(periodWithTimes.period.endDate).toLocaleDateString('pt-BR')
+                            : ''}
+                </p>
+                <br />
+                <p>Escolha um horário disponível e agende sua participação!</p>
+            </div>
+            <div className="space-y-2">
+                {slots.map(({ start, end }) => (
+                    <PrayerSlot
+                        key={start}
+                        start={start}
+                        end={end}
+                        name={timeNameMap[start]}
+                        disabled={!!blocking[start]}
+                        onSchedule={
+                            timeNameMap[start]
+                                ? undefined
+                                : (name: string) => handleSchedule(start, name)
+                        }
+                    />
+                ))}
+            </div>
         </div>
     );
 }
