@@ -23,8 +23,8 @@ export default function Home() {
         setError(null);
         try {
             const data = await createPrayerPeriod({
-                church: form.churchName,
-                reason: form.prayerReason,
+                churchName: form.churchName,
+                prayerReasons: form.prayerReason,
                 startDate: new Date(form.startDate),
                 endDate: new Date(form.endDate),
             });

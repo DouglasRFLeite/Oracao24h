@@ -1,4 +1,5 @@
 const BASE_URL = import.meta.env.VITE_BASE_URL as string;
+const API_MODE = import.meta.env.VITE_API_MODE as string;
 
 // Tipos para os dados que serão retornados ou enviados
 export interface PrayerTime {
@@ -33,18 +34,37 @@ function formatPeriodId(periodId: string): string {
   return periodId.startsWith("PERIOD#") ? periodId : `PERIOD#${periodId}`;
 }
 
+function buildApiRequest(endpoint: string, body: any): { url: string; headers: Record<string, string>; body: string } {
+  if (API_MODE === 'local') {
+    // Local: endpoint is /createTime, /createPeriod, etc.
+    return {
+      url: `${BASE_URL}/${endpoint}`,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    };
+  } else {
+    // Prod: always POST to / with header
+    return {
+      url: BASE_URL,
+      headers: {
+        "spring.cloud.function.definition": endpoint,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    };
+  }
+}
 
 // Buscar período com horários
 export async function fetchPeriod(periodId: string): Promise<PeriodWithTime> {
-  const res = await fetch(`${BASE_URL}`, {
+  const { url, headers, body } = buildApiRequest(
+    'fetchPeriod',
+    { periodId: formatPeriodId(periodId) }
+  );
+  const res = await fetch(url, {
     method: "POST",
-    headers: {
-      "spring.cloud.function.definition": "fetchPeriod",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      periodId: formatPeriodId(periodId),
-    }),
+    headers,
+    body,
   });
   if (!res.ok) throw new Error("Erro ao buscar período");
   return res.json();
@@ -52,42 +72,38 @@ export async function fetchPeriod(periodId: string): Promise<PeriodWithTime> {
 
 // Criar período de oração
 export async function createPrayerPeriod(form: {
-  church: string;
+  churchName: string;
   startDate: Date;
   endDate: Date;
-  reason: string;
+  prayerReasons: string;
 }): Promise<PrayerPeriod> {
-  const res = await fetch(`${BASE_URL}`, {
+  const { url, headers, body } = buildApiRequest(
+    'createPeriod',
+    form
+  );
+  const res = await fetch(url, {
     method: "POST",
-    headers: {
-      "spring.cloud.function.definition": "createPeriod",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(form),
+    headers,
+    body,
   });
   if (!res.ok) throw new Error("Erro ao criar período de oração");
   return res.json();
 }
 
-
-
-
-
+// Agendar horário de oração
 export async function createPrayerTime(params: {
   periodId: string;
   time: string;
   name: string;
 }): Promise<CreatePrayerTimeResponse> {
-  const res = await fetch(`${BASE_URL}`, {
+  const { url, headers, body } = buildApiRequest(
+    'createTime',
+    { ...params, periodId: formatPeriodId(params.periodId) }
+  );
+  const res = await fetch(url, {
     method: "POST",
-    headers: {
-      "spring.cloud.function.definition": "createTime",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      ...params,
-      periodId: formatPeriodId(params.periodId), // Garantir que periodId esteja no formato correto
-    }),
+    headers,
+    body,
   });
   if (!res.ok) throw new Error("Erro ao agendar horário de oração");
   return res.json();

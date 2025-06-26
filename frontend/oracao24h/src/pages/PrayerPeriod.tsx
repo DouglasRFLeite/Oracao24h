@@ -146,18 +146,32 @@ export default function PrayerPeriod() {
             <h2 className="text-3xl font-bold mb-6 text-center text-[#7f1d1d]">
                 Período de Oração
             </h2>
-            <div className="flex-col mb-8 text-center text-[#7f1d1d] text-lg font-bold">
-                <p>Igreja: {periodWithTimes?.period.church}</p>
-                <p>Motivo: {periodWithTimes?.period.reason}</p>
+            <div className="flex-col mb-8 text-center text-[#7f1d1d] text-lg">
                 <p>
-                    Início: {periodWithTimes?.period.startDate
-                        ? new Date(periodWithTimes.period.startDate).toLocaleDateString('pt-BR')
-                        : ''} - Fim: {periodWithTimes?.period.endDate
+                    <span className="font-bold">Igreja:</span>{' '}
+                    <span className="font-semibold">{periodWithTimes?.period.church}</span>
+                </p>
+                <p>
+                    <span className="font-bold">Motivo:</span>{' '}
+                    <span className="font-semibold">{periodWithTimes?.period.reason}</span>
+                </p>
+                <p>
+                    <span className="font-bold">Início:</span>{' '}
+                    <span className="font-semibold">
+                        {periodWithTimes?.period.startDate
+                            ? new Date(periodWithTimes.period.startDate).toLocaleDateString('pt-BR')
+                            : ''}
+                    </span>
+                    {' - '}
+                    <span className="font-bold">Fim:</span>{' '}
+                    <span className="font-semibold">
+                        {periodWithTimes?.period.endDate
                             ? new Date(periodWithTimes.period.endDate).toLocaleDateString('pt-BR')
                             : ''}
+                    </span>
                 </p>
                 <br />
-                <p>Escolha um horário disponível e agende sua participação!</p>
+                <p className="font-semibold">Escolha um horário disponível e agende sua participação!</p>
             </div>
             <div className="space-y-2">
                 {slots.map(({ start, end }) => (
