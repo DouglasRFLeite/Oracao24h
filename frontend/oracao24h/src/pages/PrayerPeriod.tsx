@@ -17,22 +17,30 @@ function PrayerSlot({
 }) {
     const [inputName, setInputName] = useState('');
     const [loading, setLoading] = useState(false);
+    const [scheduledName, setScheduledName] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        setScheduledName(undefined); // Reset if slot is reused
+    }, [start, end, name]);
 
     const handleSchedule = async () => {
         if (!inputName.trim() || !onSchedule) return;
         setLoading(true);
         await onSchedule(inputName.trim());
         setLoading(false);
+        setScheduledName(inputName.trim());
         setInputName('');
     };
 
+    const displayName = name || scheduledName;
+
     return (
         <div className="flex items-center gap-2 p-3 rounded-lg shadow-2xl bg-red-50 border border-gray-200 mb-2">
-            <span className="font-semibold text-[#7f1d1d]  flex-shrink-0">
+            <span className="font-semibold text-[#7f1d1d] flex-shrink-0">
                 {start} - {end}
             </span>
-            {name ? (
-                <span className="ml-2 text-red-50 font-bold bg-[#7f1d1d] rounded-xl p-1 px-3 sm:px-5">{name}</span>
+            {displayName ? (
+                <span className="ml-2 text-red-50 font-bold bg-[#7f1d1d] rounded-xl p-1 px-3 sm:px-5">{displayName}</span>
             ) : (
                 <div className="flex gap-2 items-center flex-1 min-w-0">
                     <input
