@@ -2,9 +2,17 @@ name: Deploy Java Lambda
 
 on:
   push:
-    branches: main
+    branches: [main]
+    paths:
+      - 'backend/oracao24h/**'
+      - '.github/workflows/deploy-backend.yml'
+
   pull_request:
-    branches: main
+    branches: [main]
+    paths:
+      - 'backend/oracao24h/**'
+      - '.github/workflows/deploy-backend.yml'
+
 
 jobs:
   deploy:
