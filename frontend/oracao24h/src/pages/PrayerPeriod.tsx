@@ -180,6 +180,21 @@ export default function PrayerPeriod() {
                 </p>
                 <br />
                 <p className="font-semibold">Escolha um horário disponível e agende sua participação!</p>
+
+                <p>Para compartilhar esse Período de Oração, copie o Link no botão abaixo e envie para a Igreja.</p>
+                <button
+                    className="bg-[#7f1d1d] text-red-50 px-4 py-1 rounded-xl font-semibold hover:bg-[#7f1d1d]/80 transition my-4 flex items-center gap-2 m-auto hover:cursor-pointer"
+                    onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        alert('Link copiado para a área de transferência: ' + window.location.href);
+                    }}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2" fill="currentColor" />
+                        <rect x="3" y="3" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="2" fill="none" />
+                    </svg>
+                    Copiar Link
+                </button>
             </div>
             <div className="space-y-2">
                 {slots.map(({ start, end }) => (
